@@ -1,11 +1,17 @@
 package blake.com.ktssender;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         setViews();
         setSpinners();
+        setClickListener();
     }
 
     private void setViews() {
@@ -50,5 +57,36 @@ public class MainActivity extends AppCompatActivity {
         yearSpinner.setPrompt("Select Year");
     }
 
-    
+    private String getSpinnerSelections(Spinner spinner) {
+        TextView textView = (TextView) spinner.getSelectedView();
+        String spinnerText = textView.getText().toString();
+        return spinnerText;
+    }
+
+    private void sendData() {
+        ArrayList<PersonalInfo> personalInfoList = new ArrayList<>();
+        PersonalInfo personalInfo = new PersonalInfo(nameEditText.getText().toString(),
+                getSpinnerSelections(monthSpinner), getSpinnerSelections(daySpinner),
+                getSpinnerSelections(yearSpinner));
+        personalInfoList.add(personalInfo);
+        
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_TEXT, personalInfoList);
+        shareIntent.setType("text/*");
+        startActivity(Intent.createChooser(shareIntent, "Share images to.."));
+    }
+
+    private void setClickListener() {
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nameEditText.getText().toString().isEmpty()) {
+                    sendData();
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_enter_name, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }
