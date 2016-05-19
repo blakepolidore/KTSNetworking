@@ -11,8 +11,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
 
     private EditText nameEditText;
@@ -61,15 +59,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendData() {
-        ArrayList<PersonalInfo> personalInfoList = new ArrayList<>();
-        PersonalInfo personalInfo = new PersonalInfo(nameEditText.getText().toString(),
-                getSpinnerSelections(monthSpinner), getSpinnerSelections(daySpinner),
-                getSpinnerSelections(yearSpinner));
-        personalInfoList.add(personalInfo);
+        String intentString = nameEditText.getText().toString() + "/" + getSpinnerSelections(monthSpinner)
+                + "/" + getSpinnerSelections(daySpinner) + "/" + getSpinnerSelections(yearSpinner);
 
         Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_TEXT, personalInfoList);
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, intentString);
         shareIntent.setType("text/plain");
         startActivity(Intent.createChooser(shareIntent, "Share info to.."));
     }
