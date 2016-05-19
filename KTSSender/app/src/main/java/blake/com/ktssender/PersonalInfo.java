@@ -27,6 +27,18 @@ public class PersonalInfo implements Parcelable {
         this.year = parcel.readString();
     }
 
+    public static Creator<PersonalInfo> CREATOR = new Creator<PersonalInfo>() {
+        @Override
+        public PersonalInfo createFromParcel(Parcel source) {
+            return new PersonalInfo(source);
+        }
+
+        @Override
+        public PersonalInfo[] newArray(int size) {
+            return new PersonalInfo[size];
+        }
+    };
+
     @Override
     public int describeContents() {
         return 0;
@@ -39,16 +51,4 @@ public class PersonalInfo implements Parcelable {
         dest.writeString(day);
         dest.writeString(year);
     }
-
-    public static Creator<PersonalInfo> CREATOR = new Creator<PersonalInfo>() {
-        @Override
-        public PersonalInfo createFromParcel(Parcel source) {
-            return new PersonalInfo(source);
-        }
-
-        @Override
-        public PersonalInfo[] newArray(int size) {
-            return new PersonalInfo[size];
-        }
-    };
 }

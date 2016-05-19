@@ -52,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
         monthSpinner.setAdapter(adapterMonth);
         daySpinner.setAdapter(adapterDay);
         yearSpinner.setAdapter(adapterYear);
-        monthSpinner.setPrompt("Select Month");
-        daySpinner.setPrompt("Select Day");
-        yearSpinner.setPrompt("Select Year");
     }
 
     private String getSpinnerSelections(Spinner spinner) {
@@ -74,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
         shareIntent.putParcelableArrayListExtra(Intent.EXTRA_TEXT, personalInfoList);
         shareIntent.setType("text/plain");
-        startActivity(Intent.createChooser(shareIntent, "Share images to.."));
+        startActivity(Intent.createChooser(shareIntent, "Share info to.."));
     }
 
     private void setClickListener() {
