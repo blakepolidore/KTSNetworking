@@ -1,11 +1,12 @@
 package blake.com.ktsreceiver;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,19 +35,41 @@ public class MainActivity extends AppCompatActivity {
         String type = intent.getType();
 
         if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            if (type.startsWith("text/")) {
+            if ("text/plain".equals(type)) {
+                handleIntent(intent);
+            }
+        }
+        else if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
                 handleIntent(intent);
             }
         }
     }
 
     private void handleIntent(Intent intent) {
-        ArrayList<PersonalInfo> personalInfoList = intent.getParcelableArrayListExtra(Intent.EXTRA_TEXT);
-        if (personalInfoList != null) {
-            PersonalInfo personalInfo = personalInfoList.get(0);
-            name.setText(personalInfo.name);
-            String fullBirthday = personalInfo.month + "/" + personalInfo.day + "/" + personalInfo;
-            birthday.setText(fullBirthday);
+        String intentString = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (intentString != null) {
+            String[] data = intentString.split("/");
+            name.setText(data[0]);
+            birthday.setText(data[1] + "/" + data[2] + "/" + data[3]);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = sdf.format(new Date());
+            String[] todaysDate = currentDate.split("-");
+            if (Integer.valueOf(data[1]) < Integer.valueOf(todaysDate[1])) {
+                age.setText(Integer.valueOf(todaysDate[0])-Integer.valueOf(data[3]) + "");
+            }
+            else if (Integer.valueOf(data[1]) > Integer.valueOf(todaysDate[1])) {
+                age.setText(Integer.valueOf(todaysDate[0])-Integer.valueOf(data[3]) - 1 + "");
+            }
+            else {
+                if (Integer.valueOf(data[2]) <= Integer.valueOf(todaysDate[2])) {
+                    age.setText(Integer.valueOf(todaysDate[0])-Integer.valueOf(data[3]) + "");
+                }
+                else {
+                    age.setText(Integer.valueOf(todaysDate[0])-Integer.valueOf(data[3]) - 1 + "");
+                }
+            }
         }
     }
 }
