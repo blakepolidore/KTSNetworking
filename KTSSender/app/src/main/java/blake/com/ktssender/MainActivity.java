@@ -69,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 getSpinnerSelections(monthSpinner), getSpinnerSelections(daySpinner),
                 getSpinnerSelections(yearSpinner));
         personalInfoList.add(personalInfo);
-        
+
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
         shareIntent.putParcelableArrayListExtra(Intent.EXTRA_TEXT, personalInfoList);
-        shareIntent.setType("text/*");
+        shareIntent.setType("text/plain");
         startActivity(Intent.createChooser(shareIntent, "Share images to.."));
     }
 
