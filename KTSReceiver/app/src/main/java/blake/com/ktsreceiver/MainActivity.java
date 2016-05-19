@@ -8,6 +8,9 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Class that receives the intent from the sender activity
+ */
 public class MainActivity extends AppCompatActivity {
 
     private TextView name;
@@ -23,29 +26,34 @@ public class MainActivity extends AppCompatActivity {
         getDataFromIntent();
     }
 
+    /**
+     * Sets activity views
+     */
     private void setViews() {
         name = (TextView) findViewById(R.id.name_text);
         birthday = (TextView) findViewById(R.id.birthday_text);
         age = (TextView) findViewById(R.id.age_text);
     }
 
+    /**
+     * Grabs data from intent sent from sender application
+     */
     private void getDataFromIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
-        if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
-                handleIntent(intent);
-            }
-        }
-        else if (Intent.ACTION_SEND.equals(action) && type != null) {
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 handleIntent(intent);
             }
         }
     }
 
+    /**
+     * Handles the intent and puts the information in the correct text views
+     * @param intent
+     */
     private void handleIntent(Intent intent) {
         String intentString = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (intentString != null) {

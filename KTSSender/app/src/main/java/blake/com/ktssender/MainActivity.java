@@ -11,6 +11,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * Activity to send personal information to receiver application
+ */
 public class MainActivity extends AppCompatActivity {
 
     private EditText nameEditText;
@@ -29,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         setClickListener();
     }
 
+    /**
+     * Sets views
+     */
     private void setViews() {
         nameEditText = (EditText) findViewById(R.id.name_edit_text);
         monthSpinner = (Spinner) findViewById(R.id.month_spinner);
@@ -37,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         submitButton = (Button) findViewById(R.id.send_button);
     }
 
+    /**
+     * Fills the spinners with correct information and puts them in the adpaters
+     */
     private void setSpinners() {
         ArrayAdapter<CharSequence> adapterMonth = ArrayAdapter.createFromResource(this,
                 R.array.months, android.R.layout.simple_spinner_item);
@@ -47,17 +56,22 @@ public class MainActivity extends AppCompatActivity {
         adapterMonth.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterDay.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterYear.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        monthSpinner.setAdapter(adapterMonth);
-        daySpinner.setAdapter(adapterDay);
-        yearSpinner.setAdapter(adapterYear);
     }
 
+    /**
+     * Grabs selected spinner data
+     * @param spinner
+     * @return
+     */
     private String getSpinnerSelections(Spinner spinner) {
         TextView textView = (TextView) spinner.getSelectedView();
         String spinnerText = textView.getText().toString();
         return spinnerText;
     }
 
+    /**
+     * Method that sends the data as a string to the receiver activity
+     */
     private void sendData() {
         String intentString = nameEditText.getText().toString() + "/" + getSpinnerSelections(monthSpinner)
                 + "/" + getSpinnerSelections(daySpinner) + "/" + getSpinnerSelections(yearSpinner);
@@ -69,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(shareIntent, "Share info to.."));
     }
 
+    /**
+     * Sets the button to send the data to next application but only if edit text has been filled
+     */
     private void setClickListener() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
