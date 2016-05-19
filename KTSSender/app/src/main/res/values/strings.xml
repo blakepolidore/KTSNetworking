@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">KTSSender</string>
+    <string name="year">Year</string>
+    <string name="day">Day</string>
+    <string name="month">Month</string>
+    <string name="send_personal_info">Send Personal Info</string>
+    <string name="personal_info_sender">Personal Info Sender</string>
+    <string name="enter_your_name">Enter your name</string>
 </resources>
