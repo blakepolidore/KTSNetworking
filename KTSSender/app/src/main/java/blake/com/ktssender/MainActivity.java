@@ -1,8 +1,11 @@
 package blake.com.ktssender;
 
-import android.content.Intent;
+import android.content.Context;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -11,10 +14,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Activity to send personal information to receiver application
  */
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "Main activity";
 
     private EditText nameEditText;
     private Spinner monthSpinner;
@@ -44,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Fills the spinners with correct information and puts them in the adpaters
+     * Fills the spinners with correct information and puts them in the adapters
      */
     private void setSpinners() {
         ArrayAdapter<CharSequence> adapterMonth = ArrayAdapter.createFromResource(this,
@@ -56,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         adapterMonth.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterDay.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterYear.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        daySpinner.setAdapter(adapterDay);
+        monthSpinner.setAdapter(adapterMonth);
+        yearSpinner.setAdapter(adapterYear);
     }
 
     /**
@@ -75,12 +86,13 @@ public class MainActivity extends AppCompatActivity {
     private void sendData() {
         String intentString = nameEditText.getText().toString() + "/" + getSpinnerSelections(monthSpinner)
                 + "/" + getSpinnerSelections(daySpinner) + "/" + getSpinnerSelections(yearSpinner);
+        startRegistration(intentString);
 
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, intentString);
-        shareIntent.setType("text/plain");
-        startActivity(Intent.createChooser(shareIntent, "Share info to.."));
+//        Intent shareIntent = new Intent();
+//        shareIntent.setAction(Intent.ACTION_SEND);
+//        shareIntent.putExtra(Intent.EXTRA_TEXT, intentString);
+//        shareIntent.setType("text/plain");
+//        startActivity(Intent.createChooser(shareIntent, "Share info to.."));
     }
 
     /**
@@ -98,4 +110,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void startRegistration(String data) {
+        //  Create a string map containing information about your service.
+        Map record = new HashMap();
+        record.put("personalInfo", data);
+
+        // Service information.  Pass it an instance name, service type
+        // _protocol._transportlayer , and the map containing
+        // information other devices will want once they connect to this one.
+        WifiP2pDnsSdServiceInfo serviceInfo =
+                WifiP2pDnsSdServiceInfo.newInstance("_test", "_presence._tcp", record);
+
+        // Add the local service, sending the service info, network channel,
+        // and listener that will be used to indicate success or failure of
+        // the request.
+
+        WifiP2pManager manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        WifiP2pManager.Channel channel;
+        channel = manager.initialize(this, getMainLooper(), null);
+        manager.addLocalService(channel, serviceInfo, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "It worked");
+            }
+
+            @Override
+            public void onFailure(int arg0) {
+                Log.d(TAG, "It failed");
+            }
+        });
+    }
+
 }
