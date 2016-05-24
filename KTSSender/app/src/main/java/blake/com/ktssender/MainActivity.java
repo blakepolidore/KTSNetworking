@@ -19,8 +19,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 /**
  * Activity to send personal information to receiver application
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void transferString(String data) {
         Context context = this.getApplicationContext();
-        String host = "192.168.1.203";
+        String host = getLocalIpAddress();
         //String host = "10.0.3.2";
         int port = 8888;
         int len;
@@ -171,5 +175,21 @@ public class MainActivity extends AppCompatActivity {
             transferString(params[0]);
             return null;
         }
+    }
+
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface
+                    .getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {}
+        return null;
     }
 }
