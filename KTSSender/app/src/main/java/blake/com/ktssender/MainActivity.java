@@ -1,8 +1,9 @@
 package blake.com.ktssender;
 
+import android.content.ContentResolver;
 import android.content.Context;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,8 +15,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 /**
  * Activity to send personal information to receiver application
@@ -84,15 +89,10 @@ public class MainActivity extends AppCompatActivity {
      * Method that sends the data as a string to the receiver activity
      */
     private void sendData() {
-        String intentString = nameEditText.getText().toString() + "/" + getSpinnerSelections(monthSpinner)
+        String userInfoString = nameEditText.getText().toString() + "/" + getSpinnerSelections(monthSpinner)
                 + "/" + getSpinnerSelections(daySpinner) + "/" + getSpinnerSelections(yearSpinner);
-        startRegistration(intentString);
-
-//        Intent shareIntent = new Intent();
-//        shareIntent.setAction(Intent.ACTION_SEND);
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, intentString);
-//        shareIntent.setType("text/plain");
-//        startActivity(Intent.createChooser(shareIntent, "Share info to.."));
+        ClientAsyncTask clientAsyncTask = new ClientAsyncTask();
+        clientAsyncTask.execute(userInfoString);
     }
 
     /**
@@ -111,35 +111,65 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void startRegistration(String data) {
-        //  Create a string map containing information about your service.
-        Map record = new HashMap();
-        record.put("personalInfo", data);
+    private void transferString(String data) {
+        Context context = this.getApplicationContext();
+        String host = "192.168.1.203";
+        //String host = "10.0.3.2";
+        int port = 8888;
+        int len;
+        Socket socket = new Socket();
+        byte buf[]  = new byte[1024];
+        try {
+            /**
+             * Create a client socket with the host,
+             * port, and timeout information.
+             */
 
-        // Service information.  Pass it an instance name, service type
-        // _protocol._transportlayer , and the map containing
-        // information other devices will want once they connect to this one.
-        WifiP2pDnsSdServiceInfo serviceInfo =
-                WifiP2pDnsSdServiceInfo.newInstance("_test", "_presence._tcp", record);
-
-        // Add the local service, sending the service info, network channel,
-        // and listener that will be used to indicate success or failure of
-        // the request.
-
-        WifiP2pManager manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        WifiP2pManager.Channel channel;
-        channel = manager.initialize(this, getMainLooper(), null);
-        manager.addLocalService(channel, serviceInfo, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "It worked");
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, port)), 500);
+            Log.d(TAG, data);
+            /**
+             * Create a byte stream from a string and pipe it to the output stream
+             * of the socket. This data will be retrieved by the server device.
+             */
+            OutputStream outputStream = socket.getOutputStream();
+            ContentResolver cr = context.getContentResolver();
+            InputStream inputStream = null;
+            inputStream = cr.openInputStream(Uri.parse(data));
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
             }
+            outputStream.close();
+            inputStream.close();
 
-            @Override
-            public void onFailure(int arg0) {
-                Log.d(TAG, "It failed");
+        } catch (FileNotFoundException e) {
+            Log.d("FileNotFoundException", e.toString());
+        } catch (IOException e) {
+            Log.d("IOException", e.toString());
+        }
+
+    /**
+    * Clean up any open sockets when done
+    * transferring or if an exception occurred.
+    */
+        finally {
+            if (socket != null) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        //catch logic
+                    }
+                }
             }
-        });
+        }
     }
 
+    private class ClientAsyncTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            transferString(params[0]);
+            return null;
+        }
+    }
 }
