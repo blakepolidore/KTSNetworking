@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         Context context = this.getApplicationContext();
         String host = getLocalIpAddress();
         //String host = "10.0.3.2";
-        int port = 8888;
+        int port = 50020;
         int len;
         Socket socket = new Socket();
         byte buf[]  = new byte[1024];

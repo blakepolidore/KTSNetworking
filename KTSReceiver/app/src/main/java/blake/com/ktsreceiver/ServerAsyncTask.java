@@ -35,7 +35,7 @@ public class ServerAsyncTask extends AsyncTask<Void, Void, String> {
              * Create a server socket and wait for client connections. This
              * call blocks until a connection is accepted from a client
              */
-            ServerSocket serverSocket = new ServerSocket(8888);
+            ServerSocket serverSocket = new ServerSocket(50020);
             Socket client = serverSocket.accept();
 
             /**
